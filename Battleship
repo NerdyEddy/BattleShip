@@ -1,0 +1,234 @@
+import java.util.Random;
+import java.util.Scanner;
+public class Battleship 
+{
+ 
+	public enum Status {OPEN, MISS, HIT, SHIP};
+
+	
+	public static void main(String[] args) 
+	{
+		Status[][] grid = new Status [8][8];
+		boolean reveal = false;
+		int turns = 0;
+		Scanner input = new Scanner(System.in);
+		int row = 0;
+		int column = 0;
+		int ship = 0;
+		int torp = 1;
+		
+		
+		
+		System.out.println("                   Welcome to Battleship!                  ");
+		System.out.println("-----------------------------------------------------------");
+		System.out.println("You have 15 chances to sink the computer's battle ship. the");
+		System.out.println("battleship may be oriented vertically or horizontally.  You");
+		System.out.println("will play on an 8 x 8 board and the battleship with have  a");
+		System.out.println("fixed length of 3 units,");
+		System.out.println("-----------------------------------------------------------");
+		
+		initGrid(grid);
+		dispGrid(grid, reveal);
+		
+		Random verticals = new Random();
+		boolean vertical = verticals.nextBoolean();
+		
+		while (!assignShip(vertical, grid));
+		{
+		}
+		do
+		{
+			System.out.print("Enter position to fire torpedo #" +torp+ " (row[0-7] column[0-7]):");
+			row = input.nextInt();
+			column = input.nextInt();	
+				
+				if (checkShot(row, column, grid))
+				{
+					ship++;
+				}
+				if (row < 8 && (column < 8))
+				{
+					torp++;
+					turns++;
+				}
+				if (ship == 3)
+				{
+					break;
+				}
+				dispGrid(grid, reveal);
+		}while (turns < 15 && (ship < 3));
+		
+		if (ship == 3)
+		{
+			reveal = true;
+			dispGrid(grid, reveal);
+			System.out.println("Congrats you have sunken the battle ship in " +turns+ " turns");
+		}
+		else
+		{
+			reveal = true;
+			dispGrid(grid, reveal);
+			System.out.println("Better luck next time thanks for playing!!");
+		}
+	}
+		
+
+	public static void initGrid(Status[][] grid)
+	{
+		System.out.println("Initializing board... now lets begin!");
+		System.out.println();
+		for (int i = 0; i < grid.length; i++)
+		{
+			for (int j = 0; j < grid[i].length; j++)
+			{
+				
+				grid[i][j] = Status.OPEN;
+			}
+		}
+	}
+	public static void dispGrid(Status[][] grid, boolean reveal)
+	{
+		int z = 0;
+		if (reveal == false)
+		{
+			System.out.println("   01234567");
+			System.out.println(" + - - - - -+");
+			for (int i = 0; i < grid.length; i++)
+			{
+				z++;
+				System.out.print(z-1 +"| ");
+				for (int j = 0; j < grid.length; j++)
+				{
+					if (grid[i][j] == Status.OPEN || (grid[i][j] == Status.SHIP))
+					{
+						System.out.print(" ");
+					}
+					else if (grid[i][j] == Status.HIT)
+					{
+						System.out.print("X");
+					}
+					else if (grid[i][j] == Status.MISS)
+					{
+						System.out.print("O");
+					}
+				}
+				System.out.println(" |");
+			}
+			System.out.println(" + - - - - -+");
+		}
+		
+		else 
+		{
+			System.out.println("   01234567");
+			System.out.println(" + - - - - -+");
+			
+			for (int i = 0; i < grid.length; i++)
+			{
+				z++;
+				System.out.print(z-1 +"| ");
+				for (int j = 0; j < grid.length; j++)
+				{
+					if (grid[i][j] == Status.OPEN)
+					{
+						System.out.print(" ");
+					}
+					else if (grid[i][j] == Status.SHIP)
+					{
+						System.out.print("S");
+					}
+					else if (grid[i][j] == Status.HIT)
+					{
+						System.out.print("X");
+					}
+					else if (grid[i][j] == Status.MISS)
+					{
+						System.out.print("O");
+					}
+				}
+				System.out.println(" |");
+			}
+			System.out.println(" + - - - - -+");
+			
+		}	
+	}
+		
+		
+	public static boolean assignShip (boolean vertical, Status[][] grid)
+	{
+		Random generator = new Random();
+		
+		int row = generator.nextInt(8);
+		int col = generator.nextInt(8);
+		boolean fits = false;
+		
+		if (vertical == false)
+		{
+			if (col > 5)
+			{
+				fits = false;
+				return fits;
+			}else
+			{
+				fits = true;
+				grid[row][col] = Status.SHIP;
+				col++;
+				grid[row][col] = Status.SHIP;
+				col++;
+				grid[row][col] = Status.SHIP;
+				return fits;
+			}
+		}else
+		{
+			if (row > 5)
+			{
+				fits = false;
+				return fits;
+			}else
+			{
+				fits = true;
+				grid[row][col] = Status.SHIP;
+				row++;
+				grid[row][col] = Status.SHIP;
+				row++;
+				grid[row][col] = Status.SHIP;
+				return fits;
+			}
+		}
+			
+	}
+	
+	public static boolean checkShot (int row, int col, Status[][] grid)
+	{
+		boolean hit = false;
+		if (row < 8 && (col < 8))
+		{
+		
+				if (grid[row][col] == Status.OPEN)
+				{
+					System.out.println("miss");
+					grid[row][col] = Status.MISS;
+					hit = false;
+				}
+				else if (grid[row][col] == Status.SHIP)
+				{
+					System.out.println("hit");
+					grid[row][col] = Status.HIT;
+					hit = true;
+				}
+				else if (grid[row][col] == Status.HIT || (grid[row][col] == Status.MISS))
+				{
+					System.out.println("This was a wasted torpedo");
+					hit = false;
+				}
+		}
+				else if ((row > 7) || (col > 7))
+				{
+					System.out.println("The topedo cannot be fired at (" +row+ ", " +col+ "). Try again...");
+				}
+			
+		
+		return hit;
+		
+	}
+
+}
